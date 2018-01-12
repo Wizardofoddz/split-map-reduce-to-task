@@ -60,10 +60,26 @@ func run(c *cli.Context) {
 	err = json.Unmarshal(data, job)
 	fatalIfErr(err, "Failed to parse JSON from stdin")
 
-	taskDefinitions, err := job.TasksDefinitions()
-	fatalIfErr(err, "Failed to generate Task Definitions")
+	destinationAddr, err := job.StoreDestination()
+	fatalIfErr(err, "Failed to store Destination")
 
-	output, err := json.MarshalIndent(taskDefinitions, "", "  ")
-	fatalIfErr(err, "Failed to generate output")
-	fmt.Println(string(output))
+	definitionAddrs, err := job.StoreTaskDefinitions()
+	fatalIfErr(err, "Failed to Store Task Definitions")
+
+	fmt.Println("Destination")
+	fmt.Println("===========")
+	fmt.Println(destinationAddr)
+	fmt.Println("")
+	fmt.Println("Task Definitions")
+	fmt.Println("================")
+	for _, addr := range definitionAddrs {
+		fmt.Println(addr)
+	}
+
+	// taskAddrs, err := job.StoreTasks()
+	// fatalIfErr(err, "Failed to generate Task Definitions")
+
+	// output, err := json.MarshalIndent(taskDefinitions, "", "  ")
+	// fatalIfErr(err, "Failed to generate output")
+	// fmt.Println(string(output))
 }
