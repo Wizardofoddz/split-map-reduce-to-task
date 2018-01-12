@@ -15,11 +15,11 @@ import (
 // be set
 type Job struct {
 	ipfsURL url.URL
-	Input   json.RawMessage `json:"input"`
-	UUID    string          `json:"uuid"`
-	Split   *JobTask        `json:"split"`
-	Map     *JobTask        `json:"map"`
-	Reduce  *JobTask        `json:"reduce"`
+	Input   *Location `json:"input"`
+	UUID    string    `json:"uuid"`
+	Split   *JobTask  `json:"split"`
+	Map     *JobTask  `json:"map"`
+	Reduce  *JobTask  `json:"reduce"`
 }
 
 // New constructs a new Job instance
@@ -41,6 +41,26 @@ func (job *Job) StoreDestination() (string, error) {
 	}
 
 	return dag.Put(job.ipfsURL, bytes.NewBuffer(destinationBytes))
+}
+
+// StoreSplitTask stores the split task
+func (job *Job) StoreSplitTask() (string, error) {
+	defAddrs, err := job.StoreTaskDefinitions()
+	if err != nil {
+		return "", err
+	}
+
+	splitDefAddr := defAddrs[0]
+
+	taskBytes, err := json.Marshal(&Task{
+		Input:          &Location{Address: job.Input.Address},
+		TaskDefinition: &Location{Address: splitDefAddr},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return dag.Put(job.ipfsURL, bytes.NewReader(taskBytes))
 }
 
 // StoreTaskDefinitions will store the 3 task definitions

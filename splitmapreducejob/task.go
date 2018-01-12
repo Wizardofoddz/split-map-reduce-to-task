@@ -5,3 +5,9 @@ package splitmapreducejob
 type JobTask struct {
 	Runner *Runner `json:"runner"`
 }
+
+// Task is the computes version of a task
+type Task struct {
+	TaskDefinition *Location `json:"taskDefinitiion"`
+	Input          *Location `json:"input"`
+}

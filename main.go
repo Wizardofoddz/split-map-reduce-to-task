@@ -40,7 +40,6 @@ func fatalIfErr(err error, message ...interface{}) {
 }
 
 func run(c *cli.Context) {
-	fmt.Println("running")
 	fi, err := os.Stdin.Stat()
 	fatalIfErr(err, "Failed to stat stdin")
 
@@ -66,6 +65,9 @@ func run(c *cli.Context) {
 	definitionAddrs, err := job.StoreTaskDefinitions()
 	fatalIfErr(err, "Failed to Store Task Definitions")
 
+	splitTaskAddr, err := job.StoreSplitTask()
+	fatalIfErr(err, "Failed to Store Split Task")
+
 	fmt.Println("Destination")
 	fmt.Println("===========")
 	fmt.Println(destinationAddr)
@@ -75,6 +77,10 @@ func run(c *cli.Context) {
 	for _, addr := range definitionAddrs {
 		fmt.Println(addr)
 	}
+	fmt.Println("")
+	fmt.Println("Split Task")
+	fmt.Println("==========")
+	fmt.Println(splitTaskAddr)
 
 	// taskAddrs, err := job.StoreTasks()
 	// fatalIfErr(err, "Failed to generate Task Definitions")
