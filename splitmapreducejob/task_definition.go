@@ -12,9 +12,9 @@ type TaskDefinition struct {
 // conditions new tasks are generated
 type TaskDefinitionCondition struct {
 	Name           string    `json:"name"`
-	Rule           string    `json:"rule"`
+	Condition      string    `json:"condition"`
 	TaskDefinition *Location `json:"taskDefinition"`
-	Map            bool      `json:"map"`
+	Action         string    `json:"action"`
 	Source         string    `json:"source"`
 }
 

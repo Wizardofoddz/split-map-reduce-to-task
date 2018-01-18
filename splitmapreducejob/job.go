@@ -3,6 +3,7 @@ package splitmapreducejob
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/url"
 
 	"github.com/computes/ipfs-http-api/dag"
@@ -103,12 +104,16 @@ func (job *Job) mapTaskDefinition(destinationAddr, reduceAddr string) *TaskDefin
 		},
 		Conditions: []*TaskDefinitionCondition{
 			&TaskDefinitionCondition{
-				Name: "Make a Reduce Task",
-				Rule: "len(split/results) == len(map/results)",
+				Name: "Create a Reduce Task",
+				Condition: fmt.Sprintf(
+					"len(dataset(hpcp('%v/split/results'))) == len(dataset(hpcp('%v/map/results')))  && !exist(dataset(hpcp('%v/reduce/results')))",
+					destinationAddr,
+					destinationAddr,
+					destinationAddr,
+				),
 				TaskDefinition: &Location{
 					Address: reduceAddr,
 				},
-				Map:    false,
 				Source: "map/results",
 			},
 		},
@@ -145,12 +150,17 @@ func (job *Job) splitTaskDefinition(destinationAddr, mapAddr string) *TaskDefini
 		},
 		Conditions: []*TaskDefinitionCondition{
 			&TaskDefinitionCondition{
-				Name: "Make Map Tasks",
-				Rule: "len(split/results) > 0",
+				Name: "Create Map Tasks",
+				Condition: fmt.Sprintf(
+					"exist(dataset(hpcp('%v/split/results'))) && len(dataset(hpcp('%v/map/results'))) < dataset(hpcp('%v/split/input'))",
+					destinationAddr,
+					destinationAddr,
+					destinationAddr,
+				),
 				TaskDefinition: &Location{
 					Address: mapAddr,
 				},
-				Map:    true,
+				Action: "map",
 				Source: "split/results",
 			},
 		},
