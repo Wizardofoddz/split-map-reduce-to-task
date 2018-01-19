@@ -77,7 +77,7 @@ func (job *Job) StoreSplitTask() (string, error) {
 
 	taskBytes, err := json.Marshal(&Task{
 		Input: &TaskInput{
-			Dataset: &Location{Address: job.Input.Address},
+			Dataset: &Location{Address: destinationAddr},
 			Path:    "split/input",
 		},
 		Status: &Location{
