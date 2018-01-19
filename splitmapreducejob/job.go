@@ -201,7 +201,7 @@ func (job *Job) splitTaskDefinition(destinationAddr, mapAddr string) *TaskDefini
 			&TaskDefinitionCondition{
 				Name: "Create Map Tasks",
 				Condition: fmt.Sprintf(
-					"exist(dataset(hpcp('%v/split/results'))) && len(dataset(hpcp('%v/map/results'))) < len(dataset(hpcp('%v/split/input')))",
+					"exist(dataset(hpcp('%v/split/results'))) && len(dataset(hpcp('%v/map/results'))) < len(dataset(hpcp('%v/split/results')))",
 					destinationAddr,
 					destinationAddr,
 					destinationAddr,
