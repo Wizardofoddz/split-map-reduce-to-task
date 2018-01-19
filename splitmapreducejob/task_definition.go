@@ -15,19 +15,19 @@ type TaskDefinitionCondition struct {
 	Condition      string    `json:"condition"`
 	TaskDefinition *Location `json:"taskDefinition"`
 	Action         string    `json:"action"`
-	Source         string    `json:"source"`
+	Source         *DataRef  `json:"source"`
 }
 
 // TaskDefinitionResult defines what to do with the
 // result after the task is done
 type TaskDefinitionResult struct {
-	Action      string                           `json:"action"`
-	Destination *TaskDefinitionResultDestination `json:"destination"`
+	Action      string   `json:"action"`
+	Destination *DataRef `json:"destination"`
 }
 
-// TaskDefinitionResultDestination describes a place
-// a result can go
-type TaskDefinitionResultDestination struct {
+// DataRef describes an IPLD ref with a path
+// component
+type DataRef struct {
 	Dataset *Location `json:"dataset"`
 	Path    string    `json:"path"`
 }

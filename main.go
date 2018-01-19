@@ -62,7 +62,7 @@ func run(c *cli.Context) {
 	destinationAddr, err := job.StoreDestination()
 	fatalIfErr(err, "Failed to store Destination")
 
-	definitionAddrs, err := job.StoreTaskDefinitions()
+	definitionAddrs, err := job.StoreTaskDefinitions(destinationAddr)
 	fatalIfErr(err, "Failed to Store Task Definitions")
 
 	splitTaskAddr, err := job.StoreSplitTask()

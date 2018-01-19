@@ -8,6 +8,13 @@ type JobTask struct {
 
 // Task is the computes version of a task
 type Task struct {
-	TaskDefinition *Location `json:"taskDefinitiion"`
-	Input          *Location `json:"input"`
+	TaskDefinition *Location  `json:"taskDefinition"`
+	Input          *TaskInput `json:"input"`
+	Status         *Location  `json:"status"`
+}
+
+// TaskInput is the input to a task
+type TaskInput struct {
+	Dataset *Location `json:"dataset"`
+	Path    string    `json:"path"`
 }

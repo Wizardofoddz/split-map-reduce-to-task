@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/computes/ipfs-http-api/dag"
+	"github.com/computes/split-map-reduce-to-task/dataset"
 )
 
 // Job represents a standard
@@ -31,22 +32,43 @@ func New(ipfsURL url.URL) *Job {
 // StoreDestination stores the destination and returns
 // the location
 func (job *Job) StoreDestination() (string, error) {
-	destination := &Destination{
-		Input: job.Input,
-		UUID:  job.UUID,
-	}
-
-	destinationBytes, err := json.Marshal(destination)
+	inputBytes, err := json.Marshal(job.Input)
 	if err != nil {
 		return "", err
 	}
 
-	return dag.Put(job.ipfsURL, bytes.NewBuffer(destinationBytes))
+	return dataset.Create(job.ipfsURL, &dataset.Change{
+		Action: "set",
+		Path:   "split/input",
+		Value:  json.RawMessage(inputBytes),
+	})
+
+	// destination := &Destination{
+	// 	Input: job.Input,
+	// 	UUID:  job.UUID,
+	// }
+	//
+	// destinationBytes, err := json.Marshal(destination)
+	// if err != nil {
+	// 	return "", err
+	// }
+	//
+	// return dag.Put(job.ipfsURL, bytes.NewBuffer(destinationBytes))
 }
 
 // StoreSplitTask stores the split task
 func (job *Job) StoreSplitTask() (string, error) {
-	defAddrs, err := job.StoreTaskDefinitions()
+	destinationAddr, err := job.StoreDestination()
+	if err != nil {
+		return "", err
+	}
+
+	taskStatusAddr, err := job.StoreTaskStatus()
+	if err != nil {
+		return "", err
+	}
+
+	defAddrs, err := job.StoreTaskDefinitions(destinationAddr)
 	if err != nil {
 		return "", err
 	}
@@ -54,7 +76,13 @@ func (job *Job) StoreSplitTask() (string, error) {
 	splitDefAddr := defAddrs[0]
 
 	taskBytes, err := json.Marshal(&Task{
-		Input:          &Location{Address: job.Input.Address},
+		Input: &TaskInput{
+			Dataset: &Location{Address: job.Input.Address},
+			Path:    "split/input",
+		},
+		Status: &Location{
+			Address: taskStatusAddr,
+		},
 		TaskDefinition: &Location{Address: splitDefAddr},
 	})
 	if err != nil {
@@ -66,12 +94,7 @@ func (job *Job) StoreSplitTask() (string, error) {
 
 // StoreTaskDefinitions will store the 3 task definitions
 // and return their addresses
-func (job *Job) StoreTaskDefinitions() ([]string, error) {
-	destinationAddr, err := job.StoreDestination()
-	if err != nil {
-		return nil, err
-	}
-
+func (job *Job) StoreTaskDefinitions(destinationAddr string) ([]string, error) {
 	reduceAddr, err := job.storeReduceTaskDefinition(destinationAddr)
 	if err != nil {
 		return nil, err
@@ -90,12 +113,37 @@ func (job *Job) StoreTaskDefinitions() ([]string, error) {
 	return []string{splitAddr, mapAddr, reduceAddr}, nil
 }
 
+// StoreTaskStatus creates a task status dataset
+// and writes the job UUID to it
+func (job *Job) StoreTaskStatus() (string, error) {
+	uuidBytes, err := json.Marshal(job.UUID)
+	if err != nil {
+		return "", err
+	}
+
+	uuidAddr, err := dag.Put(job.ipfsURL, bytes.NewBuffer(uuidBytes))
+	if err != nil {
+		return "", err
+	}
+
+	valueBytes, err := json.Marshal(&Location{Address: uuidAddr})
+	if err != nil {
+		return "", err
+	}
+
+	return dataset.Create(job.ipfsURL, &dataset.Change{
+		Action: "set",
+		Path:   "uuid",
+		Value:  json.RawMessage(valueBytes),
+	})
+}
+
 func (job *Job) mapTaskDefinition(destinationAddr, reduceAddr string) *TaskDefinition {
 	return &TaskDefinition{
 		Runner: job.Map.Runner,
 		Result: &TaskDefinitionResult{
 			Action: "append",
-			Destination: &TaskDefinitionResultDestination{
+			Destination: &DataRef{
 				Dataset: &Location{
 					Address: destinationAddr,
 				},
@@ -111,10 +159,11 @@ func (job *Job) mapTaskDefinition(destinationAddr, reduceAddr string) *TaskDefin
 					destinationAddr,
 					destinationAddr,
 				),
-				TaskDefinition: &Location{
-					Address: reduceAddr,
+				TaskDefinition: &Location{Address: reduceAddr},
+				Source: &DataRef{
+					Dataset: &Location{Address: destinationAddr},
+					Path:    "map/results",
 				},
-				Source: "map/results",
 			},
 		},
 	}
@@ -125,7 +174,7 @@ func (job *Job) reduceTaskDefinition(destinationAddr string) *TaskDefinition {
 		Runner: job.Reduce.Runner,
 		Result: &TaskDefinitionResult{
 			Action: "set",
-			Destination: &TaskDefinitionResultDestination{
+			Destination: &DataRef{
 				Dataset: &Location{
 					Address: destinationAddr,
 				},
@@ -141,7 +190,7 @@ func (job *Job) splitTaskDefinition(destinationAddr, mapAddr string) *TaskDefini
 		Runner: job.Split.Runner,
 		Result: &TaskDefinitionResult{
 			Action: "set",
-			Destination: &TaskDefinitionResultDestination{
+			Destination: &DataRef{
 				Dataset: &Location{
 					Address: destinationAddr,
 				},
@@ -161,7 +210,10 @@ func (job *Job) splitTaskDefinition(destinationAddr, mapAddr string) *TaskDefini
 					Address: mapAddr,
 				},
 				Action: "map",
-				Source: "split/results",
+				Source: &DataRef{
+					Dataset: &Location{Address: destinationAddr},
+					Path:    "split/results",
+				},
 			},
 		},
 	}
