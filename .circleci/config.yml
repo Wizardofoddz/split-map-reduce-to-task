@@ -10,6 +10,12 @@ jobs:
       working_directory: /go/src/github.com/computes/split-map-reduce-to-task
       steps:
         - checkout
+        - run: >
+            cat > ~/.netrc << EOF
+              machine github.com
+                login $GITHUB_USERNAME
+                password $GITHUB_TOKEN
+            EOF
         - run: go get -u github.com/golang/dep/cmd/dep
         - run: dep ensure
         - persist_to_workspace:
