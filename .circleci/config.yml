@@ -30,7 +30,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /go/src/github.com/computes
-      - run: make crosscompile
+      - run: make crossrelease
       - persist_to_workspace:
           root: /go/src/github.com/computes
           paths:
@@ -51,9 +51,6 @@ workflows:
   build-and-publish:
     jobs:
       - checkout_code
-      - test:
-          requires:
-            - checkout_code
       - build:
           requires:
             - checkout_code
@@ -64,7 +61,6 @@ workflows:
       - publish:
           requires:
             - build
-            - test
           filters:
             tags:
               only:
