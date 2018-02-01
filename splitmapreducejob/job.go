@@ -32,10 +32,15 @@ func New(ipfsURL url.URL) *Job {
 // StoreDestination stores the destination and returns
 // the location
 func (job *Job) StoreDestination() (string, error) {
+	value, err := job.ensureIsRef(job.Input)
+	if err != nil {
+		return "", err
+	}
+
 	return dataset.Create(job.ipfsURL, &dataset.Change{
 		Action: "set",
 		Path:   "split/input",
-		Value:  job.Input,
+		Value:  value,
 	})
 }
 
@@ -119,6 +124,36 @@ func (job *Job) StoreTaskStatus() (string, error) {
 		Path:   "uuid",
 		Value:  json.RawMessage(valueBytes),
 	})
+}
+
+func (job *Job) ensureIsRef(inputJSON json.RawMessage) (json.RawMessage, error) {
+	if job.isRef(inputJSON) {
+		return inputJSON, nil
+	}
+
+	addr, err := dag.Put(job.ipfsURL, bytes.NewBuffer(inputJSON))
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := json.Marshal(&Location{Address: addr})
+	if err != nil {
+		return nil, err
+	}
+
+	return json.RawMessage(data), nil
+}
+
+func (job *Job) isRef(inputJSON json.RawMessage) bool {
+	location := Location{}
+	err := json.Unmarshal(inputJSON, &location)
+	if err != nil {
+		return false
+	}
+	if location.Address == "" {
+		return false
+	}
+	return true
 }
 
 func (job *Job) mapTaskDefinition(destinationAddr, reduceAddr string) *TaskDefinition {
