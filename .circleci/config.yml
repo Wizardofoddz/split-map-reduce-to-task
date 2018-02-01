@@ -1,0 +1,65 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  checkout_code:
+      docker:
+        - image: circleci/golang:1.9
+
+      working_directory: /go/src/github.com/computes/split-map-reduce-to-task
+      steps:
+        - checkout
+        - run: go get -u github.com/golang/dep/cmd/dep
+        - run: dep ensure
+        - persist_to_workspace:
+            root: /go/src/github.com/computes
+            paths:
+              - split-map-reduce-to-task
+  build:
+    docker:
+      - image: circleci/golang:1.9
+
+    working_directory: /go/src/github.com/computes/split-map-reduce-to-task
+    steps:
+      - attach_workspace:
+          at: /go/src/github.com/computes
+      - run: make crosscompile
+      - persist_to_workspace:
+          root: /go/src/github.com/computes
+          paths:
+            - split-map-reduce-to-task
+  publish:
+    docker:
+      - image: circleci/golang:1.9
+
+    working_directory: /go/src/github.com/computes/split-map-reduce-to-task
+    steps:
+      - attach_workspace:
+          at: /go/src/github.com/computes
+      - run: go get -u github.com/tcnksm/ghr
+      - run: ghr --username computes --token $GITHUB_TOKEN --replace --draft --debug $(git describe --exact-match --tags $(git log -n1 --pretty='%h')) $CIRCLE_TAG dist/release
+
+workflows:
+  version: 2
+  build-and-publish:
+    jobs:
+      - checkout_code
+      - test:
+          requires:
+            - checkout_code
+      - build:
+          requires:
+            - checkout_code
+          filters:
+            tags:
+              only:
+                - /v.*/
+      - publish:
+          requires:
+            - build
+            - test
+          filters:
+            tags:
+              only:
+                - /v.*/
