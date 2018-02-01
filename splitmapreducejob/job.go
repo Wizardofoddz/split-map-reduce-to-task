@@ -17,11 +17,11 @@ import (
 // be set
 type Job struct {
 	ipfsURL url.URL
-	Input   *Location `json:"input"`
-	UUID    string    `json:"uuid"`
-	Split   *JobTask  `json:"split"`
-	Map     *JobTask  `json:"map"`
-	Reduce  *JobTask  `json:"reduce"`
+	Input   json.RawMessage `json:"input"`
+	UUID    string          `json:"uuid"`
+	Split   *JobTask        `json:"split"`
+	Map     *JobTask        `json:"map"`
+	Reduce  *JobTask        `json:"reduce"`
 }
 
 // New constructs a new Job instance
@@ -32,28 +32,11 @@ func New(ipfsURL url.URL) *Job {
 // StoreDestination stores the destination and returns
 // the location
 func (job *Job) StoreDestination() (string, error) {
-	inputBytes, err := json.Marshal(job.Input)
-	if err != nil {
-		return "", err
-	}
-
 	return dataset.Create(job.ipfsURL, &dataset.Change{
 		Action: "set",
 		Path:   "split/input",
-		Value:  json.RawMessage(inputBytes),
+		Value:  job.Input,
 	})
-
-	// destination := &Destination{
-	// 	Input: job.Input,
-	// 	UUID:  job.UUID,
-	// }
-	//
-	// destinationBytes, err := json.Marshal(destination)
-	// if err != nil {
-	// 	return "", err
-	// }
-	//
-	// return dag.Put(job.ipfsURL, bytes.NewBuffer(destinationBytes))
 }
 
 // StoreSplitTask stores the split task
