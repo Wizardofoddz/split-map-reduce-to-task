@@ -68,18 +68,18 @@ func run(c *cli.Context) {
 	splitTaskAddr, err := job.StoreSplitTask()
 	fatalIfErr(err, "Failed to Store Split Task")
 
-	fmt.Println("Destination")
-	fmt.Println("===========")
+	fmt.Println("dataset")
+	fmt.Println("=======")
 	fmt.Println(destinationAddr)
 	fmt.Println("")
-	fmt.Println("Task Definitions")
+	fmt.Println("task definitions")
 	fmt.Println("================")
 	for _, addr := range definitionAddrs {
 		fmt.Println(addr)
 	}
 	fmt.Println("")
-	fmt.Println("Split Task")
-	fmt.Println("==========")
+	fmt.Println("task")
+	fmt.Println("====")
 	fmt.Println(splitTaskAddr)
 
 	// taskAddrs, err := job.StoreTasks()
