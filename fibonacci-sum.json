@@ -1,0 +1,28 @@
+{
+  "input": 10,
+  "uuid": "449D6314-7C8D-4558-93DC-3367A38D3CCD",
+  "split": {
+    "runner": {
+      "metadata": {
+        "image": "computes/fibonacci-sum-split:v1.0.2"
+      },
+      "type": "docker-json-runner"
+    }
+  },
+  "map": {
+    "runner": {
+      "metadata": {
+        "image": "computes/fibonacci-sum-map:v1.0.3"
+      },
+      "type": "docker-json-runner"
+    }
+  },
+  "reduce": {
+    "runner": {
+      "metadata": {
+        "image": "computes/fibonacci-sum-reduce:v1.0.2"
+      },
+      "type": "docker-json-runner"
+    }
+  }
+}
