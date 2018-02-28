@@ -2,16 +2,13 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/cbergoon/merkletree"
-  packages = ["."]
-  revision = "217f84c78ddaa0ef3c0302ef7a77422b31128f05"
-
-[[projects]]
   name = "github.com/computes/fake-ipfs-merkle-tree"
-  packages = ["."]
-  revision = "1020d17ee4225dd0c58b324c99aea9c532e478b5"
-  version = "v7.0.0"
+  packages = [
+    ".",
+    "node"
+  ]
+  revision = "8e4637a5edb1b3e2ee9bef8951bf6d5ba13d48ff"
+  version = "v8.0.2"
 
 [[projects]]
   branch = "master"
@@ -25,14 +22,8 @@
     "dag",
     "http"
   ]
-  revision = "af3d93a7e428aa69963bd520a2f52f793961a39e"
-  version = "v3.0.0"
-
-[[projects]]
-  name = "github.com/computes/ipfs-merkle-tree"
-  packages = ["node"]
-  revision = "178b4821bfd35f041274e98cd653bb9cfeafcf93"
-  version = "v6.1.4"
+  revision = "fd064af4af3d18e22e2833baa14e652366f74f43"
+  version = "v7.0.3"
 
 [[projects]]
   name = "github.com/urfave/cli"
@@ -43,6 +34,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "54ef164453c557a72b9243a705bbd60525a35b808ace5210bf20820944911522"
+  inputs-digest = "7e26791039a0eabe3d7d5c044b901575142396962807eedc161c056f3a2af139"
   solver-name = "gps-cdcl"
   solver-version = 1
