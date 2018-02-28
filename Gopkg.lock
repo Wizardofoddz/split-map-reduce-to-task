@@ -2,15 +2,6 @@
 
 
 [[projects]]
-  name = "github.com/computes/fake-ipfs-merkle-tree"
-  packages = [
-    ".",
-    "node"
-  ]
-  revision = "8e4637a5edb1b3e2ee9bef8951bf6d5ba13d48ff"
-  version = "v8.0.2"
-
-[[projects]]
   branch = "master"
   name = "github.com/computes/go-debug"
   packages = ["."]
@@ -34,6 +25,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7e26791039a0eabe3d7d5c044b901575142396962807eedc161c056f3a2af139"
+  inputs-digest = "78afb96b6b68267829dae0b1aa2d7cbb141fc41da095bccb5abed5abec752956"
   solver-name = "gps-cdcl"
   solver-version = 1
