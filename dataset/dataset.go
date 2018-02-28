@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/url"
 
+	TREE "github.com/computes/fake-ipfs-merkle-tree"
 	"github.com/computes/ipfs-http-api/dag"
 )
 
@@ -16,12 +17,8 @@ func Create(ipfsURL url.URL, initialChange *Change) (string, error) {
 		return "", err
 	}
 
-	leafAddr, err := dagPut(ipfsURL, NewLeaf(initialChangeAddr))
-	if err != nil {
-		return "", err
-	}
-
-	return dagPut(ipfsURL, NewRoot(leafAddr))
+	tree := TREE.FromContentAddresses(ipfsURL, []string{initialChangeAddr})
+	return tree.Store()
 }
 
 func dagPut(ipfsURL url.URL, obj interface{}) (string, error) {

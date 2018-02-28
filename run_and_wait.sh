@@ -49,17 +49,20 @@ wait_for_completion() {
     sleep 1
     latest="$(dumplatest "$dataset_hash" | jq '.reduce.results')"
   done
+  echo -n "$latest"
 }
 
 execute_and_wait() {
-  local task_hash dataset_hash
+  local task_hash dataset_hash result
   set -e -o pipefail
 
   task_hash="$1"
   dataset_hash="$2"
 
   execute_task "$task_hash"
-  wait_for_completion "$dataset_hash"
+  result="$(wait_for_completion "$dataset_hash")"
+  echo ""
+  echo "result: $result"
 }
 
 main() {
