@@ -8,7 +8,7 @@ publish-filters: &publish-filters
       only:
         - /^v.*/
     branches:
-    ¦ ignore: /.*/
+      ignore: /.*/
 
 default-filters: &default-filters
   filters:
