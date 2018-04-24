@@ -59,7 +59,7 @@ jobs:
       - attach_workspace:
           at: /go/src/github.com/computes
       - run: go get -u github.com/tcnksm/ghr
-      - run: ghr --username computes --token $GITHUB_TOKEN --replace --debug $(git describe --exact-match --tags $(git log -n1 --pretty='%h')) "$CIRCLE_TAG" dist/release/
+      - run: ghr -u computes -replace "$CIRCLE_TAG" dist/release/
 
 workflows:
   version: 2
