@@ -2,49 +2,39 @@
 #
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 ---
-all-tags: &all-tags
-  tags:
-  ¦ only:
-  ¦ ¦ - /.*/
-
-version-tag-only: &version-tag-only
-  tags:
-  ¦ only:
-  ¦ ¦ - /^v.*/
-
-no-branch: &no-branch
-  branches:
-  ¦ ignore: /.*/
-
 publish-filters: &publish-filters
   filters:
-  ¦ <<: [*version-tag-only, *no-branch]
+    tags:
+    ¦ only: /^v.*/
+    branches:
+    ¦ ignore: /.*/
 
 default-filters: &default-filters
   filters:
-  ¦ <<: *all-tags
+    tags:
+    ¦ only: /.*/
 
 version: 2
 jobs:
   checkout_code:
-      docker:
-        - image: circleci/golang:1.10
+    docker:
+      - image: circleci/golang:1.10
 
-      working_directory: /go/src/github.com/computes/split-map-reduce-to-task
-      steps:
-        - checkout
-        - run: >
-            cat > ~/.netrc << EOF
-              machine github.com
-                login $GITHUB_USERNAME
-                password $GITHUB_TOKEN
-            EOF
-        - run: go get -u github.com/golang/dep/cmd/dep
-        - run: dep ensure
-        - persist_to_workspace:
-            root: /go/src/github.com/computes
-            paths:
-              - split-map-reduce-to-task
+    working_directory: /go/src/github.com/computes/split-map-reduce-to-task
+    steps:
+      - checkout
+      - run: >
+          cat > ~/.netrc << EOF
+            machine github.com
+              login $GITHUB_USERNAME
+              password $GITHUB_TOKEN
+          EOF
+      - run: go get -u github.com/golang/dep/cmd/dep
+      - run: dep ensure
+      - persist_to_workspace:
+          root: /go/src/github.com/computes
+          paths:
+            - split-map-reduce-to-task
   build:
     docker:
       - image: circleci/golang:1.10
@@ -73,13 +63,13 @@ workflows:
   version: 2
   build-and-publish:
     jobs:
-      - checkout_code
-  ¦ ¦ ¦   <<: *default-filters
+      - checkout_code:
+          <<: *default-filters
       - build:
-    ¦ ¦ ¦ <<: *default-filters
+          <<: *default-filters
           requires:
             - checkout_code
       - publish:
-    ¦ ¦ ¦ <<: *publish-filters
+          <<: *publish-filters
           requires:
             - build
