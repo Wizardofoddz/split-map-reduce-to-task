@@ -5,14 +5,16 @@
 publish-filters: &publish-filters
   filters:
     tags:
-    ¦ only: /^v.*/
+      only:
+        - /^v.*/
     branches:
     ¦ ignore: /.*/
 
 default-filters: &default-filters
   filters:
     tags:
-    ¦ only: /.*/
+      only:
+        - /.*/
 
 version: 2
 jobs:
