@@ -5,7 +5,7 @@ version: 2
 jobs:
   checkout_code:
       docker:
-        - image: circleci/golang:1.9
+        - image: circleci/golang:1.10
 
       working_directory: /go/src/github.com/computes/split-map-reduce-to-task
       steps:
@@ -24,7 +24,7 @@ jobs:
               - split-map-reduce-to-task
   build:
     docker:
-      - image: circleci/golang:1.9
+      - image: circleci/golang:1.10
 
     working_directory: /go/src/github.com/computes/split-map-reduce-to-task
     steps:
@@ -37,14 +37,14 @@ jobs:
             - split-map-reduce-to-task
   publish:
     docker:
-      - image: circleci/golang:1.9
+      - image: circleci/golang:1.10
 
     working_directory: /go/src/github.com/computes/split-map-reduce-to-task
     steps:
       - attach_workspace:
           at: /go/src/github.com/computes
       - run: go get -u github.com/tcnksm/ghr
-      - run: ghr --username computes --token $GITHUB_TOKEN --replace --draft --debug $(git describe --exact-match --tags $(git log -n1 --pretty='%h')) $CIRCLE_TAG dist/release
+      - run: ghr --username computes --token $GITHUB_TOKEN --replace --debug $(git describe --exact-match --tags $(git log -n1 --pretty='%h')) $CIRCLE_TAG dist/release
 
 workflows:
   version: 2
@@ -54,14 +54,12 @@ workflows:
       - build:
           requires:
             - checkout_code
-          filters:
-            tags:
-              only:
-                - /v.*/
       - publish:
           requires:
             - build
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only:
                 - /v.*/
