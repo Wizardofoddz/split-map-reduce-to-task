@@ -8,6 +8,23 @@
   revision = "7cb67a40409f4bbd31b6d0e8eb8b662bbdd3e252"
 
 [[projects]]
+  name = "github.com/computes/go-ipld-polymorph"
+  packages = ["."]
+  revision = "6cb683234bfcf1fc55512199ea924fa13fc90d14"
+  version = "v1.3.1"
+
+[[projects]]
+  name = "github.com/computes/go-sdk"
+  packages = [
+    "pkg/helpers/datasets",
+    "pkg/helpers/tasks",
+    "pkg/patterns/splitmapreduce",
+    "pkg/types"
+  ]
+  revision = "42af40698a0643dd16371f424caa235aa7181c10"
+  version = "v2.0.0"
+
+[[projects]]
   name = "github.com/computes/ipfs-http-api"
   packages = [
     "dag",
@@ -15,6 +32,12 @@
   ]
   revision = "fd064af4af3d18e22e2833baa14e652366f74f43"
   version = "v7.0.3"
+
+[[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
 
 [[projects]]
   name = "github.com/urfave/cli"
@@ -25,6 +48,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "78afb96b6b68267829dae0b1aa2d7cbb141fc41da095bccb5abed5abec752956"
+  inputs-digest = "b446c01955fd8648f2b16c33efd3c5921fe8e147c29ab21f91dca006696763da"
   solver-name = "gps-cdcl"
   solver-version = 1

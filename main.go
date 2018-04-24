@@ -7,7 +7,8 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/computes/split-map-reduce-to-task/splitmapreducejob"
+	POLYMORPH "github.com/computes/go-ipld-polymorph"
+	SPLITMAPREDUCE "github.com/computes/go-sdk/pkg/patterns/splitmapreduce"
 	"github.com/urfave/cli"
 )
 
@@ -20,9 +21,15 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "ipfs-url, i",
-			EnvVar: "IPFS_URL",
+			EnvVar: "COMPUTES_IPFS_URL",
 			Usage:  "URL to an IPFS API instance",
 			Value:  "http://localhost:5001",
+		},
+		cli.StringFlag{
+			Name:   "http-api-url",
+			EnvVar: "COMPUTES_HTTP_API_URL",
+			Usage:  "URL to the computes daemon",
+			Value:  "http://localhost:8189",
 		},
 	}
 	app.Action = run
@@ -55,37 +62,43 @@ func run(c *cli.Context) {
 	ipfsURL, err := url.Parse(c.GlobalString("ipfs-url"))
 	fatalIfErr(err, "Failed to parse ipfs-url")
 
-	job := splitmapreducejob.New(*ipfsURL)
-	err = json.Unmarshal(data, job)
+	httpAPIURL, err := url.Parse(c.GlobalString("http-api-url"))
+	fatalIfErr(err, "Failed to parse http-api-url")
+
+	var jobInput JobInput
+	err = json.Unmarshal(data, &jobInput)
 	fatalIfErr(err, "Failed to parse JSON from stdin")
 
-	destinationAddr, err := job.StoreDestination()
-	fatalIfErr(err, "Failed to store Destination")
+	inputPoly := POLYMORPH.New(*ipfsURL)
+	err = inputPoly.UnmarshalJSON(jobInput.Input)
+	fatalIfErr(err, "Failed to convert input to polymorph")
 
-	definitionAddrs, err := job.StoreTaskDefinitions(destinationAddr)
-	fatalIfErr(err, "Failed to Store Task Definitions")
+	job := SPLITMAPREDUCE.New(&SPLITMAPREDUCE.Options{
+		IPFSURL:      ipfsURL,
+		HTTPAPIURL:   httpAPIURL,
+		SplitInput:   inputPoly,
+		SplitRunner:  jobInput.Split.Runner,
+		MapRunner:    jobInput.Map.Runner,
+		ReduceRunner: jobInput.Reduce.Runner,
+	})
 
-	splitTaskAddr, err := job.StoreSplitTask()
-	fatalIfErr(err, "Failed to Store Split Task")
+	err = job.Create()
+	fatalIfErr(err, "Failed to create Job")
+
+	err = job.Run()
+	fatalIfErr(err, "Failed to run Job")
 
 	fmt.Println("dataset")
 	fmt.Println("=======")
-	fmt.Println(destinationAddr)
+	fmt.Println(job.ResultCID)
 	fmt.Println("")
 	fmt.Println("task definitions")
 	fmt.Println("================")
-	for _, addr := range definitionAddrs {
-		fmt.Println(addr)
-	}
+	fmt.Println(job.SplitTaskDefinitionCID)
+	fmt.Println(job.MapTaskDefinitionCID)
+	fmt.Println(job.ReduceTaskDefinitionCID)
 	fmt.Println("")
 	fmt.Println("task")
 	fmt.Println("====")
-	fmt.Println(splitTaskAddr)
-
-	// taskAddrs, err := job.StoreTasks()
-	// fatalIfErr(err, "Failed to generate Task Definitions")
-
-	// output, err := json.MarshalIndent(taskDefinitions, "", "  ")
-	// fatalIfErr(err, "Failed to generate output")
-	// fmt.Println(string(output))
+	fmt.Println(job.SplitTaskCID)
 }
