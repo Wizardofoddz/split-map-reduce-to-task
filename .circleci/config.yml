@@ -1,6 +1,29 @@
 # Golang CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-go/ for more details
+---
+all-tags: &all-tags
+  tags:
+  ¦ only:
+  ¦ ¦ - /.*/
+
+version-tag-only: &version-tag-only
+  tags:
+  ¦ only:
+  ¦ ¦ - /^v.*/
+
+no-branch: &no-branch
+  branches:
+  ¦ ignore: /.*/
+
+publish-filters: &publish-filters
+  filters:
+  ¦ <<: [*version-tag-only, *no-branch]
+
+default-filters: &default-filters
+  filters:
+  ¦ <<: *all-tags
+
 version: 2
 jobs:
   checkout_code:
@@ -44,22 +67,19 @@ jobs:
       - attach_workspace:
           at: /go/src/github.com/computes
       - run: go get -u github.com/tcnksm/ghr
-      - run: ghr --username computes --token $GITHUB_TOKEN --replace --debug $(git describe --exact-match --tags $(git log -n1 --pretty='%h')) $CIRCLE_TAG dist/release
+      - run: ghr --username computes --token $GITHUB_TOKEN --replace --debug $(git describe --exact-match --tags $(git log -n1 --pretty='%h')) "$CIRCLE_TAG" dist/release/
 
 workflows:
   version: 2
   build-and-publish:
     jobs:
       - checkout_code
+  ¦ ¦ ¦   <<: *default-filters
       - build:
+    ¦ ¦ ¦ <<: *default-filters
           requires:
             - checkout_code
       - publish:
+    ¦ ¦ ¦ <<: *publish-filters
           requires:
             - build
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only:
-                - /v.*/
