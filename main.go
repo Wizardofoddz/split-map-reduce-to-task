@@ -76,6 +76,7 @@ func run(c *cli.Context) {
 	job := SPLITMAPREDUCE.New(&SPLITMAPREDUCE.Options{
 		IPFSURL:      ipfsURL,
 		HTTPAPIURL:   httpAPIURL,
+		UUID:         jobInput.UUID,
 		SplitInput:   inputPoly,
 		SplitRunner:  jobInput.Split.Runner,
 		MapRunner:    jobInput.Map.Runner,

@@ -21,8 +21,8 @@
     "pkg/patterns/splitmapreduce",
     "pkg/types"
   ]
-  revision = "42af40698a0643dd16371f424caa235aa7181c10"
-  version = "v2.0.0"
+  revision = "6269d0e85e5b3119b18050d4394d09243395a176"
+  version = "v2.1.0"
 
 [[projects]]
   name = "github.com/computes/ipfs-http-api"
@@ -48,6 +48,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b446c01955fd8648f2b16c33efd3c5921fe8e147c29ab21f91dca006696763da"
+  inputs-digest = "50e8b3a77f13e0ca1ab4be0a2feb63fafd9fbfea0ec88e29563d0d9b5a4d5de6"
   solver-name = "gps-cdcl"
   solver-version = 1
