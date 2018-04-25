@@ -12,6 +12,9 @@ import (
 	"github.com/urfave/cli"
 )
 
+// Version will be replaced by CI
+var Version = "dev"
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "split-map-reduce-to-task"
